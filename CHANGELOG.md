@@ -12,6 +12,31 @@ discussion and diff. New entries must include that link; see
 
 ### Added
 
+- RPC conformance vectors for the methods CA-01 added, kept under
+  `tests/fixtures/rpc/` and `tests/fixtures/rpc-errors/` rather than in a pack
+  (a pack's RPC fixtures must be capturable by `tools/evidence/capture_live.py`,
+  and the engine does not run every one of these methods yet). Pagination:
+  `getLedgers` and `getTransactions` with `pagination.limit` 1 and 50, with
+  tests that the D-06 bound is exact (51, 200, 0, negatives and non-integer
+  limits are rejected; upstream itself answers 51 and 200, measured live).
+  Absent entities: a `getLedgerEntries` key with no entry returns an empty
+  `entries` array and an unknown `getTransaction` hash answers `NOT_FOUND`,
+  both checked against the live endpoint. Events: a `getEvents` request with
+  two filters, an exact `ScVal` topic segment and wildcards, with tests that
+  more than two filters are an invalid fixture. Error simulation: twelve
+  scripted endpoint behaviors for the CA-01 section 5 table (HTTP 429 that
+  recovers and that does not, HTTP 5xx, a timeout, JSON-RPC `-32601`, other and
+  malformed JSON-RPC errors, a body that is not JSON), replayed against
+  `capture_live.py` to show transport failures and application errors stay
+  distinct. 80 new tests in `tests/test_rpc_pagination_fixtures.py`,
+  `tests/test_rpc_absent_fixtures.py`, `tests/test_rpc_events_fixtures.py` and
+  `tests/test_rpc_error_simulation.py`. Closes
+  [issue #295](https://github.com/StellarCanary/ProtocolCanary-Fixtures/issues/295),
+  [#296](https://github.com/StellarCanary/ProtocolCanary-Fixtures/issues/296),
+  [#297](https://github.com/StellarCanary/ProtocolCanary-Fixtures/issues/297)
+  and [#298](https://github.com/StellarCanary/ProtocolCanary-Fixtures/issues/298).
+  ([PR #478](https://github.com/StellarCanary/ProtocolCanary-Fixtures/pull/478))
+
 - Protocol 29 coverage now includes a Protocol 28-versus-29 RPC mismatch
   fixture, with separate Testnet and Futurenet verification records whose
   passphrases are validated against their network names. The release pack
